@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+    prometheus:
+        image: prom/prometheus
+        command: --config.file=/etc/prometheus/prometheus.yml
+        ports:
+            - "9090:9090"
+        volumes:
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    minio:
+        image: quay.io/minio/minio:RELEASE.2024-03-21T23-13-43Z   
+        environment:
+            # MINIO_ROOT_USER: minioadmin
+            # MINIO_ROOT_PASSWORD: minioadmin
+            MINIO_PROMETHEUS_AUTH_TYPE: public
+            MINIO_PROMETHEUS_JOB_ID: minio-job-resource
+            MINIO_PROMETHEUS_URL: http://prometheus:9090
+        command: server --console-address ":9001" /data{1...4}
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        volumes: 
+            - data1-1:/data1
+            - data1-2:/data2
+            - data1-3:/data3
+            - data1-4:/data4
+    grafana: 
+        image: grafana/grafana
+        ports:
+            - "3000:3000"
+
+volumes:
+  data1-1:
+  data1-2:
+  data1-3:
+  data1-4:
